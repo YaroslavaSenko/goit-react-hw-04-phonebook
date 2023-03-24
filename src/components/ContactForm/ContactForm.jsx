@@ -1,4 +1,4 @@
-import React from "react";
+import {useState} from "react";
 import { nanoid } from 'nanoid';
 import {Formik, ErrorMessage } from 'formik';
 import {Input, Form, Button} from './ContactForm.styled';
@@ -9,35 +9,40 @@ let userSchema = yup.object().shape({
   number: yup.string().required(),
 });
 
-class ContactForm extends React.Component{
-    state = {
-        name: '',
-        number: '',
-      }
-    
-    nameImputId = nanoid() ;
-    numberImputId = nanoid();
+export default function ContactForm({onSubmit}){
+const [name, setName] = useState('');
+const [number, setNumber] = useState('')
 
-    handleChange = event => {
-        const { name,  value} = event.currentTarget;
-        this.setState({
-            [name]: value        
-        })
+const  nameImputId = nanoid() ;
+const  numberImputId = nanoid();
+
+const handleChange = event => {
+  const { name, value } = event.target;
+  switch (name) {
+    case 'name':
+      setName(value);
+      break;
+      case 'number':
+      setNumber(value);
+      break;
+    default:
+      return
+  }
     }  
-    handleSubmit = event => {
-        event.preventDefault();
-        console.log(this.state);
 
-        this.props.onSubmit(this.state.name, this.state.number)
-        this.setState({name: '', number:''})
+    const handleSubmit = event => {
+        event.preventDefault();
+
+       onSubmit(name, number)
+       setName('')
+       setNumber('')
+
 
     }
-   
-    render(){
         return(
           <Formik>
-         <Form onSubmit={this.handleSubmit}>
-            <label htmlFor={this.nameImputId}>
+         <Form onSubmit={handleSubmit}>
+            <label htmlFor={nameImputId}>
             <p>Name</p>
             <Input
              type="text"
@@ -45,14 +50,14 @@ class ContactForm extends React.Component{
              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
              required
-             value={this.state.name}
-             onChange={this.handleChange}
+             value={name}
+             onChange={handleChange}
              validationSchema={userSchema}
-             id={this.nameImputId}
+             id={nameImputId}
            />
            <ErrorMessage name="name" />
             </label>
-            <label htmlFor={this.numberImputId}>
+            <label htmlFor={numberImputId}>
                 <p>Number</p>
                 <Input
                 type="tel"
@@ -60,9 +65,9 @@ class ContactForm extends React.Component{
                 pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
                 title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
                 required
-                value={this.state.number}
-                onChange={this.handleChange}
-                id={this.numberImputId}
+                value={number}
+                onChange={handleChange}
+                id={numberImputId}
               />
               <ErrorMessage name="number" />
             </label>
@@ -75,7 +80,5 @@ class ContactForm extends React.Component{
          </Form>
          </Formik>
         )    }
-}
 
 
-export default ContactForm
